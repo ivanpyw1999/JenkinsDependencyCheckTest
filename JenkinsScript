@@ -37,7 +37,7 @@ pipeline {
 				}
 			}	
 		}
-	}
+	
 
 
     post {
@@ -61,9 +61,10 @@ pipeline {
 
 		success{
 				echo 'Published and Deployed Successfully!'
-			}
+		}
 			
 		failure{
 			echo 'Publish and Deploy Failed'
-			}
+		}
+	}
 }
