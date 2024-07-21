@@ -1,21 +1,43 @@
 pipeline {
-	agent any
-	stages {
-		stage('Checkout SCM') {
-			steps {
-				checkout scm
-			}
-		}
+    agent any
 
-		stage('OWASP DependencyCheck') {
-			steps {
-				dependencyCheck additionalArguments: '--format HTML --format XML', odcInstallation: 'Default'
-			}
-		}
-	}	
-	post {
-		success {
-			dependencyCheckPublisher pattern: 'dependency-check-report.xml'
-		}
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('OWASP Dependency-Check Vulnerabilities') {
+            environment {
+                NVD_API_KEY = '6475b353-dd6b-4785-aa9d-1c65de6a8f8c'
+            }
+
+            steps {
+                dependencyCheck additionalArguments: ''' 
+                            -o './'
+                            -s './'
+                            -f 'ALL' 
+                            --prettyPrint
+                            
+                            --nvdApiKey $NVD_API_KEY''', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
+                // --noupdate put in between prettyPrint and nvdapikey above ^
+                dependencyCheckPublisher pattern: 'dependency-check-report.xml'
+            }
+        } 
 	}
+
+
+    post {
+        always {
+			archiveArtifacts artifacts: 'dependency-check-report.*', allowEmptyArchive: true
+            cleanWs()
+        }
+        success {
+            echo 'Published and Deployed Successfully!'
+        }
+        failure {
+            echo 'Publish and Deploy Failed'
+        }
+    }
 }
