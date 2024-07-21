@@ -8,6 +8,8 @@ pipeline {
             }
         }
 
+
+		// OWASP DEPENDENCY CHECK PLUGIN
         stage('OWASP Dependency-Check Vulnerabilities') {
             environment {
                 NVD_API_KEY = '6475b353-dd6b-4785-aa9d-1c65de6a8f8c'
@@ -25,28 +27,33 @@ pipeline {
             }
         }
 
+		// SONARQUBE
 		stage('Code Quality Check via SonarQube') {
 			steps {
 				script {
+					// SONARQUBE is from the jenkins configuration naming of the sonarqube plugin
 					def scannerHome = tool 'SonarQube';
 					withSonarQubeEnv('SonarQube') {
+						// OWASP here is the name of your sonarqube project
 						sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=OWASP -Dsonar.sources=."
 						}
-					}
+				}
 			}
 		}
 
-		stage ('Build') {
-			steps {
-				sh '/var/jenkins_home/apache-maven-3.6.3/bin/mvn --batch-mode -V -U -e clean verify -Dsurefire.useFile=false -Dmaven.test.failure.ignore'
-				}
-			}
+		// MAVEN ONLY
+		// stage ('Build') {
+		// 	steps {
+		// 		sh '/var/jenkins_home/apache-maven-3.6.3/bin/mvn --batch-mode -V -U -e clean verify -Dsurefire.useFile=false -Dmaven.test.failure.ignore'
+		// 		}
+		// 	}
+		// 
+		// stage ('Analysis') {
+		// 		steps {
+		// 		sh '/var/jenkins_home/apache-maven-3.6.3/bin/mvn --batch-mode -V -U -e checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs'
+		// 		}
+		// 	}	
 
-		stage ('Analysis') {
-				steps {
-				sh '/var/jenkins_home/apache-maven-3.6.3/bin/mvn --batch-mode -V -U -e checkstyle:checkstyle pmd:pmd pmd:cpd findbugs:findbugs'
-				}
-			}	
 		}
 	
 
@@ -59,19 +66,23 @@ pipeline {
         // }
 
 		always{
+
+			// SONARQUBE
 			recordIssues enabledForFailure: true, tool: sonarQube()
-			junit testResults: '**/target/surefire-reports/TEST-*.xml'
-			recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
-			recordIssues enabledForFailure: true, tool: checkStyle()
-			recordIssues enabledForFailure: true, tool: spotBugs(pattern:'**/target/findbugsXml.xml')
-			recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
-			recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
+
+			// MAVEN ONLY
+			// junit testResults: '**/target/surefire-reports/TEST-*.xml'
+			// recordIssues enabledForFailure: true, tools: [mavenConsole(), java(), javaDoc()]
+			// recordIssues enabledForFailure: true, tool: checkStyle()
+			// recordIssues enabledForFailure: true, tool: spotBugs(pattern:'**/target/findbugsXml.xml')
+			// recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
+			// recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
 			
 			
     	}
 
 		success{
-				echo 'Published and Deployed Successfully!'
+			echo 'Published and Deployed Successfully!'
 		}
 			
 		failure{
