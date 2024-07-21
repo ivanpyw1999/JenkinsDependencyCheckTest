@@ -59,11 +59,11 @@ pipeline {
 			
     	}
 
-		success {
+		success{
 				echo 'Published and Deployed Successfully!'
 			}
 			
-		failure {
+		failure{
 			echo 'Publish and Deploy Failed'
 			}
 }
