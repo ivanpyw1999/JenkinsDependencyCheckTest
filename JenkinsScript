@@ -56,12 +56,14 @@ pipeline {
 			recordIssues enabledForFailure: true, tool: cpd(pattern: '**/target/cpd.xml')
 			recordIssues enabledForFailure: true, tool: pmdParser(pattern: '**/target/pmd.xml')
 			
-			success {
+			
+    	}
+
+		success {
 				echo 'Published and Deployed Successfully!'
 			}
 			
-			failure {
-				echo 'Publish and Deploy Failed'
+		failure {
+			echo 'Publish and Deploy Failed'
 			}
-    }
 }
