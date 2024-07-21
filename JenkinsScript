@@ -19,7 +19,7 @@ pipeline {
                             -s './'
                             -f 'ALL' 
                             --prettyPrint
-                            
+                            --noupdate
                             --nvdApiKey $NVD_API_KEY''', odcInstallation: 'OWASP Dependency-Check Vulnerabilities'
                 // --noupdate put in between prettyPrint and nvdapikey above ^
                 dependencyCheckPublisher pattern: 'dependency-check-report.xml'
